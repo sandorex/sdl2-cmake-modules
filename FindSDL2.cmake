@@ -1,6 +1,7 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
+#  Copyright 2019 Aleksandar Radivojevic <rzhw3h@gmail.com>
 #  Copyright 2019 Amine Ben Hassouna <amine.benhassouna@gmail.com>
 #  Copyright 2000-2019 Kitware, Inc. and Contributors
 #  All rights reserved.
@@ -82,6 +83,9 @@ This module responds to the following cache variables:
   SDL2_LIBRARY
     SDL2 Library (.dll, .so, .a, etc) path.
 
+  SDL2_LIBRARY_DLL (WINDOWS ONLY)
+    SDL2 Library DLL path.
+
   SDL2MAIN_LIBRAY
     SDL2main Library (.a) path.
 
@@ -113,6 +117,9 @@ SDL2_LIBRARIES, SDL2::Core and SDL2::Main does not get created.
 $SDL2DIR is an environment variable that would correspond to the
 ./configure --prefix=$SDL2DIR used in building SDL2.  l.e.galup 9-20-02
 
+
+Modification by Aleksandar Radivojevic:
+  Search for SDL2.dll on windows
 
 
 Created by Amine Ben Hassouna:
@@ -196,6 +203,18 @@ find_library(SDL2_LIBRARY
 )
 
 set(SDL2_LIBRARIES "${SDL2_LIBRARY}")
+
+# Find DLL file for windows
+if(WIN32)
+  find_file (SDL2_LIBRARY_DLL
+    NAMES SDL2.dll
+    HINTS
+      ENV SDL2DIR
+      ${SDL2_NO_DEFAULT_PATH_CMD}
+    PATH_SUFFIXES lib ${VC_LIB_PATH_SUFFIX}
+    PATHS ${SDL2_PATH}
+  )
+endif()
 
 if(NOT SDL2_BUILDING_LIBRARY)
   if(NOT SDL2_INCLUDE_DIR MATCHES ".framework")
@@ -324,6 +343,7 @@ endif()
 mark_as_advanced(SDL2_PATH
                  SDL2_NO_DEFAULT_PATH
                  SDL2_LIBRARY
+                 SDL2_LIBRARY_DLL
                  SDL2MAIN_LIBRARY
                  SDL2_INCLUDE_DIR
                  SDL2_BUILDING_LIBRARY)
